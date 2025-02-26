@@ -1,35 +1,105 @@
-@import './base.css';
+/* 重置和基础样式 */
+:root {
+  --primary-color: #6366f1;
+  --text-color: #374151;
+  --bg-color: #f3f4f6;
+  --border-color: #e5e7eb;
+  --header-height: 60px;
+  --aside-width: 200px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
 
 #app {
-  max-width: 1280px;
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+/* 布局容器样式 */
+.container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  padding: 0 20px;
 }
 
-a,
-.green {
+/* 通用间距 */
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+/* 卡片样式 */
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* 按钮样式重置 */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* 链接样式重置 */
+a {
+  color: inherit;
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+/* 表格样式优化 */
+.el-table {
+  --el-table-border-color: var(--border-color);
+  --el-table-header-bg-color: #f9fafb;
+  --el-table-row-hover-bg-color: #f3f4f6;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+/* Element Plus 组件样式优化 */
+.el-card {
+  border: 1px solid var(--border-color) !important;
+  margin-bottom: 1rem;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+.el-button {
+  font-weight: 500;
+}
+
+.el-input__inner {
+  height: 36px !important;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  :root {
+    --aside-width: 64px;
+  }
+  
+  .container {
+    padding: 0 12px;
   }
 }

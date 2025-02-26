@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Document, Timer, Warning, InfoFilled, Plus } from '@element-plus/icons-vue'
 import axios from 'axios'
 import moment from 'moment'
 
@@ -241,46 +242,54 @@ onMounted(() => {
       <el-row :gutter="20">
         <el-col :span="8">
           <el-card class="stat-card" shadow="hover">
-            <template #header>
-              <div class="card-header">
-                <span>总域名数</span>
+            <div class="stat-content">
+              <div class="stat-icon total">
+                <el-icon><Document /></el-icon>
               </div>
-            </template>
-            <div class="stat-value">
-              <span class="number">{{ totalDomains }}</span>
-              <span class="label">个域名</span>
+              <div class="stat-info">
+                <div class="stat-label">总域名数</div>
+                <div class="stat-value">
+                  <span class="number">{{ totalDomains }}</span>
+                  <span class="unit">个域名</span>
+                </div>
+              </div>
             </div>
           </el-card>
         </el-col>
         <el-col :span="8">
-          <el-card class="stat-card warning" shadow="hover">
-            <template #header>
-              <div class="card-header">
-                <span>即将过期</span>
-                <el-tooltip
-                  content="30天内即将过期的证书数量"
-                  placement="top"
-                >
-                  <el-icon><InfoFilled /></el-icon>
-                </el-tooltip>
+          <el-card class="stat-card" shadow="hover">
+            <div class="stat-content">
+              <div class="stat-icon warning">
+                <el-icon><Timer /></el-icon>
               </div>
-            </template>
-            <div class="stat-value">
-              <span class="number">{{ expiringDomains }}</span>
-              <span class="label">个域名</span>
+              <div class="stat-info">
+                <div class="stat-label">
+                  即将过期
+                  <el-tooltip content="30天内即将过期的证书数量" placement="top">
+                    <el-icon class="info-icon"><InfoFilled /></el-icon>
+                  </el-tooltip>
+                </div>
+                <div class="stat-value">
+                  <span class="number warning-text">{{ expiringDomains }}</span>
+                  <span class="unit">个域名</span>
+                </div>
+              </div>
             </div>
           </el-card>
         </el-col>
         <el-col :span="8">
-          <el-card class="stat-card error" shadow="hover">
-            <template #header>
-              <div class="card-header">
-                <span>异常状态</span>
+          <el-card class="stat-card" shadow="hover">
+            <div class="stat-content">
+              <div class="stat-icon danger">
+                <el-icon><Warning /></el-icon>
               </div>
-            </template>
-            <div class="stat-value">
-              <span class="number">{{ errorDomains }}</span>
-              <span class="label">个域名</span>
+              <div class="stat-info">
+                <div class="stat-label">异常状态</div>
+                <div class="stat-value">
+                  <span class="number danger-text">{{ errorDomains }}</span>
+                  <span class="unit">个域名</span>
+                </div>
+              </div>
             </div>
           </el-card>
         </el-col>
@@ -304,7 +313,9 @@ onMounted(() => {
               <el-option label="异常" value="ERROR" />
             </el-select>
           </div>
-          <el-button type="primary" @click="showAddDomainDialog">添加域名</el-button>
+          <el-button type="primary" @click="showAddDomainDialog">
+            <el-icon><Plus /></el-icon>添加域名
+          </el-button>
         </div>
       </template>
 
@@ -436,75 +447,161 @@ onMounted(() => {
 
 <style scoped>
 .domain-manager {
-  padding: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 24px;
+  max-width: 100%;
+  min-height: calc(100vh - var(--header-height));
+  background-color: var(--bg-color);
 }
 
 .dashboard {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .stat-card {
-  height: 160px;
-  transition: all 0.3s;
+  height: 120px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--border-color);
+  background: white;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 24px;
+}
+
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  font-size: 28px;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.1);
+}
+
+.stat-icon.total {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--primary-color);
+}
+
+.stat-icon.warning {
+  background-color: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.stat-icon.danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 15px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.info-icon {
+  margin-left: 6px;
+  font-size: 14px;
+  color: #9ca3af;
+  cursor: help;
+}
+
+.stat-value {
+  display: flex;
+  align-items: baseline;
+}
+
+.number {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--primary-color);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.warning-text {
+  color: #eab308;
+}
+
+.danger-text {
+  color: #ef4444;
+}
+
+.unit {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.domain-list {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .title {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
 }
 
 .filter-select {
-  width: 120px;
+  width: 140px;
 }
 
-.stat-value {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 80px;
+/* 表格样式优化 */
+:deep(.el-table) {
+  --el-table-header-bg-color: #f8fafc;
+  --el-table-header-text-color: #374151;
+  --el-table-row-hover-bg-color: #f9fafb;
 }
 
-.number {
-  font-size: 36px;
-  font-weight: bold;
-  color: #409EFF;
+:deep(.el-table th) {
+  font-weight: 600;
+  height: 48px;
+  background-color: var(--el-table-header-bg-color);
 }
 
-.warning .number {
-  color: #E6A23C;
+:deep(.el-table td) {
+  padding: 16px 0;
 }
 
-.error .number {
-  color: #F56C6C;
-}
-
-.label {
-  margin-top: 8px;
-  color: #909399;
-  font-size: 14px;
-}
-
-.domain-list {
-  margin-top: 20px;
+:deep(.el-table--border) {
+  border: 1px solid var(--border-color);
 }
 
 .operation-buttons {
@@ -514,23 +611,92 @@ onMounted(() => {
   flex-wrap: nowrap;
 }
 
+.operation-buttons .el-button {
+  padding: 6px 12px;
+  min-height: 32px;
+}
+
 .expiring-soon {
-  color: #E6A23C;
+  color: #eab308;
+  display: flex;
+  align-items: center;
 }
 
 .expiry-tag {
   margin-left: 8px;
+  font-size: 12px;
 }
 
 :deep(.error-row) {
-  --el-table-tr-bg-color: var(--el-color-danger-light-9);
+  background-color: #fef2f2;
 }
 
 :deep(.warning-row) {
-  --el-table-tr-bg-color: var(--el-color-warning-light-9);
+  background-color: #fffbeb;
 }
 
-.dialog-footer {
-  margin-top: 20px;
+/* 对话框样式优化 */
+:deep(.el-dialog) {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+:deep(.el-dialog__header) {
+  margin: 0;
+  padding: 24px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #f8fafc;
+}
+
+:deep(.el-dialog__title) {
+  font-weight: 600;
+  font-size: 18px;
+  color: #111827;
+}
+
+:deep(.el-dialog__body) {
+  padding: 24px;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border-color);
+  background-color: #f8fafc;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .domain-manager {
+    padding: 16px;
+  }
+
+  .stat-content {
+    padding: 16px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .operation-buttons {
+    flex-wrap: wrap;
+  }
+
+  .operation-buttons .el-button {
+    flex: 1;
+  }
 }
 </style> 
