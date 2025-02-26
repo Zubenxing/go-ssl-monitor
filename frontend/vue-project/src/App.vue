@@ -1,13 +1,26 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { HomeFilled, Setting, Document, QuestionFilled } from '@element-plus/icons-vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
+const route = useRoute()
+const router = useRouter()
 const isCollapse = ref(false)
+const isLoginPage = computed(() => route.path === '/login')
+
+const handleLogout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('username')
+  ElMessage.success('退出登录成功')
+  router.push('/login')
+}
 </script>
 
 <template>
-  <div class="app-container">
-    <el-container>
+  <div class="app-container" :class="{ 'login-layout': isLoginPage }">
+    <router-view v-if="isLoginPage"></router-view>
+    <el-container v-else>
       <!-- 侧边栏 -->
       <el-aside :width="isCollapse ? '80px' : '240px'" class="aside">
         <div class="logo-container">
@@ -21,16 +34,17 @@ const isCollapse = ref(false)
           background-color="#6366f1"
           text-color="#fff"
           active-text-color="#fff"
+          router
         >
-          <el-menu-item index="1">
+          <el-menu-item index="/">
             <el-icon><HomeFilled /></el-icon>
             <template #title>仪表盘</template>
           </el-menu-item>
-          <el-menu-item index="2">
+          <el-menu-item index="/domains">
             <el-icon><Document /></el-icon>
             <template #title>域名管理</template>
           </el-menu-item>
-          <el-menu-item index="3">
+          <el-menu-item index="/settings">
             <el-icon><Setting /></el-icon>
             <template #title>系统设置</template>
           </el-menu-item>
@@ -61,15 +75,15 @@ const isCollapse = ref(false)
             <span class="welcome-text">欢迎使用SSL证书监控系统</span>
           </div>
           <div class="header-right">
-            <el-dropdown>
+            <el-dropdown @command="handleCommand">
               <span class="user-info">
                 <el-avatar :size="32" class="user-avatar">管理员</el-avatar>
                 <span class="username">管理员</span>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item>个人设置</el-dropdown-item>
-                  <el-dropdown-item divided>退出登录</el-dropdown-item>
+                  <el-dropdown-item command="settings">个人设置</el-dropdown-item>
+                  <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -107,6 +121,18 @@ body {
 
 .app-container {
   min-height: 100vh;
+}
+
+/* 登录页面布局 */
+.login-layout {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.login-layout .aside,
+.login-layout .header,
+.login-layout .main-content {
+  display: none !important;
 }
 
 /* 侧边栏样式 */
