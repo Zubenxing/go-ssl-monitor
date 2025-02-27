@@ -22,6 +22,15 @@ const router = createRouter({
         requiresAuth: true,
         layout: 'default'
       }
+    },
+    {
+      path: '/lincoln',
+      name: 'lincoln',
+      component: () => import('../views/lincoln_views/LincolnMain.vue'),
+      meta: { 
+        requiresAuth: true,
+        layout: 'default'
+      }
     }
   ]
 })

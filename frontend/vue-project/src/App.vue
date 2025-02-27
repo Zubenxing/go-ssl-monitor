@@ -44,6 +44,10 @@ const handleLogout = () => {
             <el-icon><Document /></el-icon>
             <template #title>域名管理</template>
           </el-menu-item>
+          <el-menu-item index="/lincoln">
+            <el-icon><Document /></el-icon>
+            <template #title>同步备份</template>
+          </el-menu-item>
           <el-menu-item index="/settings">
             <el-icon><Setting /></el-icon>
             <template #title>系统设置</template>

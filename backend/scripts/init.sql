@@ -47,3 +47,17 @@ CREATE TABLE IF NOT EXISTS domains (
 -- VALUES 
 --     ('example.com', 'admin@example.com', 'VALID', true),
 --     ('test.com', 'admin@test.com', 'VALID', true); 
+
+-- 添加备份日志表
+CREATE TABLE backup_logs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ip VARCHAR(15) NOT NULL,
+    server_name VARCHAR(100) NOT NULL,
+    start_time VARCHAR(255) NOT NULL DEFAULT '',
+    end_time VARCHAR(255) NOT NULL DEFAULT '',
+    backup_status TINYINT NOT NULL DEFAULT 0,
+    alert_status TINYINT NOT NULL DEFAULT 0,
+    script_version VARCHAR(255) NOT NULL DEFAULT '0',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 

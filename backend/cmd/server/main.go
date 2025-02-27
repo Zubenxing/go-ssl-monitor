@@ -8,9 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-ssl-monitor/internal/api"
 	"github.com/go-ssl-monitor/internal/config"
-	"github.com/go-ssl-monitor/internal/model"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -18,25 +15,9 @@ func main() {
 	configPath := filepath.Join("configs", "config.yaml")
 	config.LoadConfig(configPath)
 
-	// 连接数据库
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		config.AppConfig.MySQL.User,
-		config.AppConfig.MySQL.Password,
-		config.AppConfig.MySQL.Host,
-		config.AppConfig.MySQL.Port,
-		config.AppConfig.MySQL.Database)
-
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
-	}
-
-	// 自动迁移数据库表
-	err = db.AutoMigrate(&model.User{}, &model.Domain{})
-	if err != nil {
-		log.Fatal("Failed to migrate database:", err)
-	}
-
+	// 初始化数据库连接
+	config.InitDB()
+	
 	// 创建gin实例
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
@@ -45,7 +26,7 @@ func main() {
 
 	// 添加数据库中间件
 	r.Use(func(c *gin.Context) {
-		c.Set("db", db)
+		c.Set("db", config.DB)
 		c.Next()
 	})
 
@@ -81,6 +62,13 @@ func main() {
 			protected.DELETE("/domains/:id", api.DeleteDomain)
 			protected.POST("/domains/:id/check", api.CheckDomainCertificate)
 			protected.PUT("/domains/:id/auto-renewal", api.ToggleAutoRenewal)
+
+			// 备份日志相关路由
+			protected.GET("/backupLogs", api.GetBackupLogs)
+			protected.POST("/backupLogs", api.CreateBackupLog)
+			protected.PUT("/backupLogs/:id", api.UpdateBackupLog)
+			protected.GET("/getId/:ip", api.GetLastBackupLogByIP)
+			protected.GET("/getStatus/:ip", api.GetBackupStatusByIP)
 		}
 	}
 
