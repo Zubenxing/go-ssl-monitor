@@ -12,6 +12,7 @@ type User struct {
 	Username  string    `json:"username" gorm:"unique;not null"`
 	Password  string    `json:"-" gorm:"not null"` // json:"-" 确保密码不会被序列化
 	Email     string    `json:"email" gorm:"unique"`
+	Avatar    string    `json:"avatar"`                    // 添加头像字段
 	IsActive  bool      `json:"isActive" gorm:"default:true"`
 	LastLogin time.Time `json:"lastLogin"`
 	CreatedAt time.Time `json:"createdAt"`

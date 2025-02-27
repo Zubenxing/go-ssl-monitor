@@ -120,4 +120,15 @@ func AuthMiddleware() gin.HandlerFunc {
 
         c.Next()
     }
+}
+
+// Logout 处理用户登出
+func Logout(c *gin.Context) {
+    // 这里可以添加任何需要的清理工作
+    // 比如记录日志、清除会话等
+    
+    c.JSON(http.StatusOK, gin.H{
+        "success": true,
+        "message": "已成功登出",
+    })
 } 

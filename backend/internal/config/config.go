@@ -22,15 +22,18 @@ type Config struct {
 		Database string `yaml:"database"`
 	} `yaml:"mysql"`
 
-	Email struct {
-		SMTPHost    string   `yaml:"smtp_host"`
-		SMTPPort    int      `yaml:"smtp_port"`
-		Username    string   `yaml:"username"`
-		Password    string   `yaml:"password"`
-		FromAddress string   `yaml:"from_address"`
-		ToAddresses []string `yaml:"to_addresses"`
-		Enabled     bool     `yaml:"enabled"`
-	} `yaml:"email"`
+	Email EmailConfig `yaml:"email"`
+}
+
+// EmailConfig 邮件配置结构体
+type EmailConfig struct {
+	SMTPHost    string   `yaml:"smtp_host"`
+	SMTPPort    int      `yaml:"smtp_port"`
+	Username    string   `yaml:"username"`
+	Password    string   `yaml:"password"`
+	FromAddress string   `yaml:"from_address"`
+	ToAddresses []string `yaml:"to_addresses"`
+	Enabled     bool     `yaml:"enabled"`
 }
 
 // AppConfig 全局配置变量

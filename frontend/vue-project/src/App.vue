@@ -3,11 +3,15 @@ import { ref, computed } from 'vue'
 import { HomeFilled, Setting, Document, QuestionFilled } from '@element-plus/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import UserProfile from '@/components/UserProfile.vue'
 
 const route = useRoute()
 const router = useRouter()
 const isCollapse = ref(false)
 const isLoginPage = computed(() => route.path === '/login')
+const isLoggedIn = computed(() => {
+  return !!localStorage.getItem('token')
+})
 
 const handleLogout = () => {
   localStorage.removeItem('token')
@@ -79,18 +83,7 @@ const handleLogout = () => {
             <span class="welcome-text">欢迎使用SSL证书监控系统</span>
           </div>
           <div class="header-right">
-            <el-dropdown @command="handleCommand">
-              <span class="user-info">
-                <el-avatar :size="32" class="user-avatar">管理员</el-avatar>
-                <span class="username">管理员</span>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="settings">个人设置</el-dropdown-item>
-                  <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+            <UserProfile v-if="isLoggedIn" />
           </div>
         </el-header>
 
