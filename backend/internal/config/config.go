@@ -23,11 +23,13 @@ type Config struct {
 	} `yaml:"mysql"`
 
 	Email struct {
-		SMTPHost    string `yaml:"smtp_host"`
-		SMTPPort    int    `yaml:"smtp_port"`
-		Username    string `yaml:"username"`
-		Password    string `yaml:"password"`
-		FromAddress string `yaml:"from_address"`
+		SMTPHost    string   `yaml:"smtp_host"`
+		SMTPPort    int      `yaml:"smtp_port"`
+		Username    string   `yaml:"username"`
+		Password    string   `yaml:"password"`
+		FromAddress string   `yaml:"from_address"`
+		ToAddresses []string `yaml:"to_addresses"`
+		Enabled     bool     `yaml:"enabled"`
 	} `yaml:"email"`
 }
 

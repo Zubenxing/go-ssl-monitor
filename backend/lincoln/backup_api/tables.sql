@@ -5,7 +5,7 @@ CREATE TABLE BackupLogs (
     StartTime VARCHAR(255) NOT NULL DEFAULT '',  -- 开始时间，改为 VARCHAR 类型，默认值为空字符串
     EndTime VARCHAR(255) NOT NULL DEFAULT '',    -- 结束时间，改为 VARCHAR 类型，默认值为空字符串
     BackupStatus TINYINT NOT NULL DEFAULT 0,    -- 备份状态，默认值为 0
-    AlertStatus TINYINT NOT NULL DEFAULT 0      -- 报警状态，默认值为 0
+    AlertStatus TINYINT NOT NULL DEFAULT 0 COMMENT '0:正常,1:告警已触发,2:告警未触发'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 向 BackupLogs 表中添加 ScriptVersion 字段

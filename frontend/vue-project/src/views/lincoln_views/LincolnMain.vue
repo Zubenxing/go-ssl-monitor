@@ -23,6 +23,7 @@
                 range-separator="至"
                 start-placeholder="开始时间"
                 end-placeholder="结束时间"
+                value-format="YYYY-MM-DD HH:mm:ss"
                 :shortcuts="dateShortcuts"
                 @change="handleDateChange"
               />
@@ -74,10 +75,20 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="告警状态" width="100" align="center">
+        <el-table-column 
+          label="告警状态" 
+          width="120" 
+          align="center"
+          :filters="[
+            { text: '正常', value: 0 },
+            { text: '告警已触发', value: 1 },
+            { text: '告警未触发', value: 2 }
+          ]"
+          :filter-method="filterAlertStatus"
+          filter-placement="bottom">
           <template #default="scope">
-            <el-tag :type="scope.row.alert_status === 0 ? 'success' : 'warning'">
-              {{ scope.row.alert_status === 0 ? '正常' : '告警' }}
+            <el-tag :type="getAlertStatusType(scope.row.alert_status, scope.row.backup_status)">
+              {{ getAlertStatusText(scope.row.alert_status, scope.row.backup_status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -111,6 +122,7 @@ const pageSize = ref(20)
 const searchQuery = ref('')
 const dateRange = ref(null)
 const backupStatusFilter = ref([])
+const alertStatusFilter = ref([])
 
 // 日期快捷选项
 const dateShortcuts = [
@@ -120,7 +132,11 @@ const dateShortcuts = [
       const end = new Date()
       const start = new Date()
       start.setTime(start.getTime() - 3600 * 1000 * 24)
-      return [start, end]
+      // 格式化日期为字符串
+      return [
+        formatDateToString(start),
+        formatDateToString(end)
+      ]
     },
   },
   {
@@ -129,7 +145,10 @@ const dateShortcuts = [
       const end = new Date()
       const start = new Date()
       start.setTime(start.getTime() - 3600 * 1000 * 24 * 3)
-      return [start, end]
+      return [
+        formatDateToString(start),
+        formatDateToString(end)
+      ]
     },
   },
   {
@@ -138,10 +157,24 @@ const dateShortcuts = [
       const end = new Date()
       const start = new Date()
       start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-      return [start, end]
+      return [
+        formatDateToString(start),
+        formatDateToString(end)
+      ]
     },
   },
 ]
+
+// 添加日期格式化辅助函数
+const formatDateToString = (date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
 
 // 过滤后的数据
 const filteredData = computed(() => {
@@ -157,19 +190,44 @@ const filteredData = computed(() => {
     )
   }
   
-  // 日期范围过滤
+  // 修改日期范围过滤逻辑
   if (dateRange.value && dateRange.value[0] && dateRange.value[1]) {
-    const startDate = dateRange.value[0].getTime()
-    const endDate = dateRange.value[1].getTime()
+    const selectedStartDate = new Date(dateRange.value[0])
+    const selectedEndDate = new Date(dateRange.value[1])
+    
     result = result.filter(item => {
-      const itemStartTime = new Date(item.start_time).getTime()
-      return itemStartTime >= startDate && itemStartTime <= endDate
+      // 如果记录没有开始时间，则跳过
+      if (!item.start_time) return false
+      
+      const recordStartTime = new Date(item.start_time)
+      const recordEndTime = item.end_time ? new Date(item.end_time) : null
+      
+      // 如果记录有结束时间
+      if (recordEndTime) {
+        // 检查记录的时间段是否与选择的时间段有重叠
+        return (
+          // 记录的开始时间在选择的时间范围内
+          (recordStartTime >= selectedStartDate && recordStartTime <= selectedEndDate) ||
+          // 记录的结束时间在选择的时间范围内
+          (recordEndTime >= selectedStartDate && recordEndTime <= selectedEndDate) ||
+          // 记录的时间段完全包含选择的时间范围
+          (recordStartTime <= selectedStartDate && recordEndTime >= selectedEndDate)
+        )
+      }
+      
+      // 如果记录没有结束时间，只检查开始时间是否在范围内
+      return recordStartTime >= selectedStartDate && recordStartTime <= selectedEndDate
     })
   }
 
   // 备份状态筛选
   if (backupStatusFilter.value.length > 0) {
     result = result.filter(item => backupStatusFilter.value.includes(item.backup_status))
+  }
+
+  // 告警状态筛选
+  if (alertStatusFilter.value.length > 0) {
+    result = result.filter(item => alertStatusFilter.value.includes(item.alert_status))
   }
   
   return result
@@ -241,12 +299,68 @@ const handleCurrentChange = (val) => {
 // 格式化时间
 const formatTime = (time) => {
   if (!time) return '-'
-  return time
+  // 确保时间格式一致
+  const date = new Date(time)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).replace(/\//g, '-')
 }
 
 // 修改筛选方法
 const filterBackupStatus = (value, row, column) => {
   backupStatusFilter.value = column.filteredValue || []
+  return true  // 实际筛选由 filteredData 处理
+}
+
+// 获取告警状态类型
+const getAlertStatusType = (alertStatus, backupStatus) => {
+  // 如果备份正常，显示成功状态
+  if (backupStatus === 0) {
+    return 'success'
+  }
+  
+  // 备份异常时，根据告警状态显示不同类型
+  switch (alertStatus) {
+    case 0: // 正常
+      return 'success'
+    case 1: // 告警已触发（邮件发送成功）
+      return 'warning'
+    case 2: // 告警未触发（邮件发送失败）
+      return 'danger'
+    default:
+      return 'info'
+  }
+}
+
+// 获取告警状态文本
+const getAlertStatusText = (alertStatus, backupStatus) => {
+  // 如果备份正常，显示正常状态
+  if (backupStatus === 0) {
+    return '正常'
+  }
+  
+  // 备份异常时，根据告警状态显示不同文本
+  switch (alertStatus) {
+    case 0:
+      return '正常'
+    case 1:
+      return '告警已触发'
+    case 2:
+      return '告警未触发'
+    default:
+      return '未知'
+  }
+}
+
+// 告警状态筛选方法
+const filterAlertStatus = (value, row, column) => {
+  alertStatusFilter.value = column.filteredValue || []
   return true  // 实际筛选由 filteredData 处理
 }
 
@@ -302,16 +416,21 @@ onMounted(() => {
 }
 
 :deep(.el-tag) {
-  min-width: 60px;
+  min-width: 90px;  /* 增加宽度以适应更长的文本 */
   text-align: center;
-  font-weight: bold;  /* 加粗状态文字 */
+  font-weight: bold;
 }
 
-/* 为不同状态添加鲜明的视觉区分 */
 :deep(.el-tag--success) {
   background-color: #f0f9eb;
   border-color: #e1f3d8;
   color: #67c23a;
+}
+
+:deep(.el-tag--warning) {
+  background-color: #fdf6ec;
+  border-color: #faecd8;
+  color: #e6a23c;
 }
 
 :deep(.el-tag--danger) {
